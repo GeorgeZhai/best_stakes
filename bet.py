@@ -1,10 +1,5 @@
 #!/usr/bin/env python
 
-Total_stake = 100
-# display only
-events = ['a_win1orwin2','draw/draw','b_win1orwin2']
-#return_rates = [[4.35,5.50,1.80],[2.55,5.00,2.80],[2.60,4.50,2.95],[4.30,6.00,1.80]]
-return_rates = [[4.1,4.2,4.5,4]]
 
 def split_number(n,amount):
     list_of_tuples = []
@@ -32,29 +27,42 @@ def find_best_rate(Total_stake,return_rates):
     possible_min_win_return = []
     n = len(return_rates)
     all_combinations = split_number(n,Total_stake)
-
     for s_combination in all_combinations:
         stakes = list(s_combination)
         stake_cost = sum(stakes)
         returns = []
         for s,r in zip(stakes,return_rates):
-            returns.append(s*r*1.0)
+            returns.append(float("{0:.2f}".format(s * r * 1.0)))
         min_return = min(returns)
         min_win = (min_return - stake_cost) * 1.0
         if min_win >= possible_min_win:
             possible_min_win = min_win
             possible_min_win_rate = min_win / stake_cost
             possible_min_win_stakes = stakes
-            possible_min_win_return = min_return
-    return possible_min_win_stakes, returns, possible_min_win
+            possible_min_win_return = returns
+    return possible_min_win_stakes, possible_min_win_return, possible_min_win
 
-for rs in return_rates:
-    print "====================="
-    s,r,w = find_best_rate(Total_stake,rs)
-    if w <= 0:
-        print "!! no way to win in this rates: ", rs
+
+def find_best_roi(events,return_rates,Total_stake):
+    if type(return_rates[0]) == list:
+        rr = return_rates
     else:
-        print events, "   Best rate found, with total stake: ", Total_stake
-        print " odds  ", rs
-        print "stakes ", s , '   possible_min_win--->' , w , ' rate: ', (100*w/Total_stake),'%'
-        print 'return ', r
+        rr = [return_rates]
+    for rs in rr:
+        print("=start====================")
+        s,r,w = find_best_rate(Total_stake,rs)
+        if w <= 0:
+            print("!! No way to win in these Odds: ", rs)
+        else:
+            print("For Opts:  " , events, "   Best ROT found for stake: ", Total_stake)
+            print("with Odds: ", rs)
+            print("!!Stakes:  ", s , ' may win: ' , float("{0:.2f}".format(w)), ' ROI: ', float("{0:.2f}".format(100*w/Total_stake)),'%')
+            print("Bet Return: ", r)
+        print("=end====================")
+
+#-------------------------
+
+Total_stake = 50
+events = ['a_win1orwin2','draw/draw','b_win1orwin2'] # for display only
+return_rates = [4.1,4.2,4.5]
+find_best_roi(events,return_rates,Total_stake)
